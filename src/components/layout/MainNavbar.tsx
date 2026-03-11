@@ -77,9 +77,9 @@ export default function MainNavbar({ onToggleSidebar }: MainNavbarProps) {
     <div className="main-navbar sticky-top bg-white">
       <nav className="navbar align-items-stretch navbar-light flex-md-nowrap p-0">
 
-        {/* Botón hamburguesa — solo mobile */}
+        {/* Botón hamburguesa — solo mobile (visible vía CSS media query) */}
         <button
-          className="d-md-none navbar-hamburger"
+          className="navbar-hamburger"
           onClick={onToggleSidebar}
           aria-label="Abrir menú"
         >

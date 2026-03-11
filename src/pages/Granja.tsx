@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import { C } from '@/constants/colors';
 import { ROUTES } from '@/constants/routes';
-import Header from '@/components/layout/Header';
 import granjaRaw from '@/data/granja.json';
+import uscoLogo from '@/assets/USCO_Logo.png';
 import { useAuth } from '@/context/AuthContext';
 import { zonasService } from '@/services/zonas.service';
 import type { ZonaInfo } from '@/services/zonas.service';
@@ -50,24 +50,6 @@ function centroid(coords: number[][]): google.maps.LatLngLiteral {
 
 // ── Estadísticas y contenido estático ────────────────────────────────────────
 const FARM_CENTER = { lat: 2.8905, lng: -75.3075 };
-
-const STATS = [
-  { icon: 'landscape',      label: 'Área total',           value: '15 ha',    color: C.verde },
-  { icon: 'grass',          label: 'Lotes productivos',    value: '15',       color: '#52B788' },
-  { icon: 'water',          label: 'Estanques / reserv.',  value: '4',        color: '#1E40AF' },
-  { icon: 'agriculture',    label: 'Maquinaria',           value: '4 equipos',color: '#92400E' },
-  { icon: 'calendar_today', label: 'Años de operación',    value: '40+',      color: '#8B1A1A' },
-  { icon: 'science',        label: 'Proyectos activos',    value: '8',        color: '#7C3AED' },
-];
-
-const GALLERY = [
-  { icon: 'grass',       label: 'Cultivos en producción', g: '135deg,#1B4332,#52B788' },
-  { icon: 'water',       label: 'Estanques piscícolas',   g: '135deg,#1E3A8A,#60A5FA' },
-  { icon: 'agriculture', label: 'Maquinaria agrícola',    g: '135deg,#7C2D12,#F97316' },
-  { icon: 'eco',         label: 'Invernadero y vivero',   g: '135deg,#14532D,#86EFAC' },
-  { icon: 'science',     label: 'Laboratorio de suelos',  g: '135deg,#4C1D95,#A78BFA' },
-  { icon: 'groups',      label: 'Prácticas académicas',   g: '135deg,#7F1D1D,#FCA5A5' },
-];
 
 const CURIOSIDADES = [
   { icon: 'thermostat',  text: 'Temperatura promedio de 28°C. Los pisos térmicos oscilan entre 25°C y 32°C a lo largo del año.' },
@@ -117,14 +99,23 @@ function makeMarkerIcon(color: string, tipo: AreaTipo, size: number): string {
 export default function GranjaPage() {
   useAuth();
   const navigate  = useNavigate();
-  const [selected,    setSelected]    = useState<AreaInfo | null>(null);
-  const [zona,        setZona]        = useState<string | null>(null);
-  const [geoErr,      setGeoErr]      = useState('');
-  const [geoLoading,  setGeoLoading]  = useState(false);
-  const [map,       setMap]       = useState<google.maps.Map | null>(null);
-  const [userPos,   setUserPos]   = useState<google.maps.LatLngLiteral | null>(null);
-  const [fsElement, setFsElement] = useState<Element | null>(null);
+  const [selected,       setSelected]       = useState<AreaInfo | null>(null);
+  const [zona,           setZona]           = useState<string | null>(null);
+  const [geoErr,         setGeoErr]         = useState('');
+  const [geoLoading,     setGeoLoading]     = useState(false);
+  const [map,            setMap]            = useState<google.maps.Map | null>(null);
+  const [userPos,        setUserPos]        = useState<google.maps.LatLngLiteral | null>(null);
+  const [fsElement,      setFsElement]      = useState<Element | null>(null);
+  const [showZonaSheet,  setShowZonaSheet]  = useState(false); // bottom sheet mobile
+  const [showListSheet,  setShowListSheet]  = useState(false); // lista de zonas mobile
+  const [isMobile,       setIsMobile]       = useState(() => window.innerWidth < 768);
   const zonas = zonasService.getAll();
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   // Detecta el elemento real que entra en pantalla completa (el canvas interno de Google Maps)
   useEffect(() => {
@@ -261,6 +252,8 @@ export default function GranjaPage() {
 
   const handleSelectArea = useCallback((area: AreaInfo) => {
     setSelected(area);
+    setShowListSheet(false);
+    if (window.innerWidth < 768) setShowZonaSheet(true);
     const feature = granjaFeatures.find(f => f.properties.nombre === area.id);
     if (!feature || !mapRef.current) return;
     const c = centroid(feature.geometry.coordinates[0]);
@@ -316,82 +309,214 @@ export default function GranjaPage() {
     <>
     <div>
       <div className="main-content-container container-fluid py-4">
-        <Header
-          title="La Granja"
-          subtitle="Granja Experimental USCO — Neiva, Huila · Conoce nuestras instalaciones"
-        />
 
-        {/* ── Stats ── */}
-        <div className="row mb-4">
-          {STATS.map(s => (
-            <div key={s.label} className="col-6 col-md-4 col-lg-2 mb-3">
-              <div className="card h-100" style={{ padding: '0.85rem 1rem' }}>
-                <div className="d-flex align-items-center" style={{ gap: 10 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 10, background: s.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <i className="material-icons" style={{ color: s.color, fontSize: 20 }}>{s.icon}</i>
+        {/* ══════════════════════════════════════════════
+            HERO PORTADA
+        ══════════════════════════════════════════════ */}
+        <div style={{ position: 'relative', borderRadius: 18, overflow: 'hidden', marginBottom: 36, minHeight: 420 }}>
+          {/* Imagen de fondo */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&q=85)',
+            backgroundSize: 'cover', backgroundPosition: 'center 40%',
+          }} />
+          {/* Overlay degradado */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(105deg, rgba(75,10,10,0.92) 0%, rgba(45,106,79,0.72) 60%, rgba(0,0,0,0.45) 100%)',
+          }} />
+
+          {/* Contenido del hero */}
+          <div style={{ position: 'relative', zIndex: 1, padding: '52px 48px 48px', display: 'flex', flexDirection: 'column', minHeight: 420 }}>
+            {/* Institución */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 'auto' }}>
+              <img src={uscoLogo} alt="USCO" style={{ width: 42, height: 42, objectFit: 'contain', filter: 'brightness(0) invert(1)', flexShrink: 0 }} />
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Universidad Surcolombiana</div>
+                <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>Facultad de Ingeniería Agronómica · Neiva, Huila</div>
+              </div>
+              <div style={{ marginLeft: 'auto', background: 'rgba(200,168,75,0.2)', border: '1px solid rgba(200,168,75,0.4)', borderRadius: 20, padding: '4px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#C8A84B' }} />
+                <span style={{ fontSize: 11, color: '#C8A84B', fontWeight: 600 }}>Operativa desde 1984</span>
+              </div>
+            </div>
+
+            {/* Título principal */}
+            <div style={{ marginTop: 36 }}>
+              <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Conoce nuestras instalaciones</p>
+              <h1 style={{ color: '#fff', fontSize: 'clamp(28px, 5vw, 50px)', fontWeight: 900, fontFamily: 'Georgia, serif', lineHeight: 1.1, margin: 0, marginBottom: 12 }}>
+                Granja Experimental<br />
+                <span style={{ color: '#C8A84B' }}>USCO</span>
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, lineHeight: 1.6, maxWidth: 540, marginBottom: 36 }}>
+                Centro de investigación, docencia y extensión agropecuaria. Laboratorio a cielo abierto para más de 500 estudiantes al año.
+              </p>
+
+              {/* Stats en el hero */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0 }}>
+                {[
+                  { value: '40+', label: 'Años de\noperación', border: true },
+                  { value: '15 ha', label: 'Área\ntotal', border: true },
+                  { value: '15', label: 'Lotes\nproductivos', border: true },
+                  { value: '8',  label: 'Proyectos\nactivos', border: false },
+                ].map(s => (
+                  <div key={s.label} style={{
+                    paddingRight: s.border ? 28 : 0,
+                    marginRight: s.border ? 28 : 0,
+                    borderRight: s.border ? '1px solid rgba(255,255,255,0.2)' : 'none',
+                  }}>
+                    <div style={{ fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 900, color: '#C8A84B', lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', marginTop: 4, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{s.label}</div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: '#3D5170', lineHeight: 1 }}>{s.value}</div>
-                    <div style={{ fontSize: 10, color: '#818EA3', marginTop: 2 }}>{s.label}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════
+            ACERCA DE + MISIÓN / VISIÓN
+        ══════════════════════════════════════════════ */}
+        <div className="row mb-4" style={{ alignItems: 'stretch' }}>
+          {/* Texto descriptivo */}
+          <div className="col-12 col-lg-5 mb-4 mb-lg-0">
+            <div style={{ height: '100%', padding: '2rem 2rem', background: '#fff', border: '1px solid #E4E8EF', borderRadius: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--usco-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <i className="material-icons" style={{ color: '#fff', fontSize: 18 }}>eco</i>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--usco-red)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Quiénes somos</span>
+              </div>
+              <p style={{ fontSize: 14, color: '#3D5170', lineHeight: 1.9, marginBottom: 16, fontWeight: 400 }}>
+                La <strong>Granja Experimental USCO</strong> es un centro de investigación, docencia y extensión agropecuaria ubicado en Neiva, Huila. Con más de 40 años de trayectoria, es el laboratorio a cielo abierto de los programas de Ingeniería Agronómica, Zootecnia y Biología.
+              </p>
+              <p style={{ fontSize: 13, color: '#818EA3', lineHeight: 1.85, marginBottom: 0 }}>
+                Cuenta con <strong style={{ color: '#3D5170' }}>15 lotes y parcelas productivas</strong>, 4 reservorios piscícolas, un vivero, laboratorios de suelos y agua, y una flota de maquinaria agrícola activa.
+              </p>
+              {/* Chips */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 22 }}>
+                {['Investigación', 'Docencia', 'Extensión', 'Producción'].map(tag => (
+                  <span key={tag} style={{ padding: '4px 14px', borderRadius: 20, background: '#F8F9FA', border: '1px solid #E4E8EF', fontSize: 11, color: '#5A6169', fontWeight: 600 }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Misión + Visión */}
+          <div className="col-12 col-lg-7">
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 14 }}>
+              {/* Misión */}
+              <div style={{
+                flex: 1, borderRadius: 14, overflow: 'hidden', position: 'relative',
+                background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)',
+                padding: '1.5rem 1.8rem',
+              }}>
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+                <div style={{ position: 'absolute', bottom: -20, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <i className="material-icons" style={{ color: '#52B788', fontSize: 18 }}>flag</i>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#52B788', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Misión</span>
                   </div>
+                  <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 1.8, marginBottom: 0 }}>
+                    Apoyar la formación integral mediante prácticas agropecuarias sostenibles, fomentando la investigación científica y la transferencia de tecnología a las comunidades rurales del Huila.
+                  </p>
+                </div>
+              </div>
+              {/* Visión */}
+              <div style={{
+                flex: 1, borderRadius: 14, overflow: 'hidden', position: 'relative',
+                background: 'linear-gradient(135deg, #5C3A00 0%, #92620A 100%)',
+                padding: '1.5rem 1.8rem',
+              }}>
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <i className="material-icons" style={{ color: '#C8A84B', fontSize: 18 }}>visibility</i>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#C8A84B', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Visión</span>
+                  </div>
+                  <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 1.8, marginBottom: 0 }}>
+                    Ser referente regional en investigación agropecuaria sostenible, articulando ciencia, tecnología y saberes ancestrales para contribuir a la seguridad alimentaria del sur colombiano.
+                  </p>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* ── Quiénes somos + Misión/Visión ── */}
-        <div className="row mb-4">
-          <div className="col-12 col-md-7 mb-4 mb-md-0">
-            <div className="card h-100" style={{ padding: '1.5rem' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Quiénes somos</div>
-              <h5 style={{ color: '#3D5170', fontWeight: 700, marginBottom: 10 }}>Granja Experimental USCO</h5>
-              <p style={{ fontSize: 13, color: '#555', lineHeight: 1.85, marginBottom: 10 }}>
-                La Granja Experimental de la Universidad Surcolombiana es un centro de investigación, docencia y extensión agropecuaria ubicado en Neiva, Huila. Con más de 40 años de trayectoria, es el laboratorio a cielo abierto de los programas de Ingeniería Agronómica, Zootecnia y Biología.
-              </p>
-              <p style={{ fontSize: 13, color: '#555', lineHeight: 1.85, marginBottom: 0 }}>
-                Cuenta con <strong>15 lotes y parcelas productivas</strong>, 4 reservorios piscícolas, un vivero, laboratorios de suelos y agua, y una flota de maquinaria agrícola.
-              </p>
-            </div>
-          </div>
-          <div className="col-12 col-md-5">
-            <div className="d-flex flex-column h-100" style={{ gap: 12 }}>
-              <div className="card flex-fill" style={{ padding: '1.1rem 1.3rem', borderLeft: `4px solid ${C.verde}` }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: C.verde, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Misión</div>
-                <p style={{ fontSize: 12, color: '#555', lineHeight: 1.78, marginBottom: 0 }}>
-                  Apoyar la formación integral mediante prácticas agropecuarias sostenibles, fomentando la investigación científica y la transferencia de tecnología a las comunidades rurales del Huila.
-                </p>
-              </div>
-              <div className="card flex-fill" style={{ padding: '1.1rem 1.3rem', borderLeft: '4px solid #C8A84B' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#C8A84B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Visión</div>
-                <p style={{ fontSize: 12, color: '#555', lineHeight: 1.78, marginBottom: 0 }}>
-                  Ser referente regional en investigación agropecuaria sostenible, articulando ciencia, tecnología y saberes ancestrales para contribuir a la seguridad alimentaria del sur colombiano.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* ── Galería ── */}
-        <div className="card mb-4" style={{ padding: '1.25rem 1.5rem' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Galería</div>
-          <div className="row">
-            {GALLERY.map(item => (
-              <div key={item.label} className="col-6 col-md-4 mb-3">
+        {/* ══════════════════════════════════════════════
+            GALERÍA CON FOTOS REALES
+        ══════════════════════════════════════════════ */}
+        <div style={{ marginBottom: 36 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Instalaciones</p>
+              <h4 style={{ fontSize: 18, fontWeight: 800, color: '#3D5170', margin: 0 }}>Un vistazo a la granja</h4>
+            </div>
+            <span style={{ fontSize: 11, color: '#C8D2E0', fontStyle: 'italic' }}>Galería multimedia · próximamente fotos reales</span>
+          </div>
+
+          {/* Grid de fotos */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'auto auto', gap: 12 }}>
+            {/* Foto grande — ocupa 2 filas en desktop */}
+            {[
+              {
+                url: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=800&q=80',
+                label: 'Cultivos en producción', sub: 'Lotes productivos E1–E5',
+                grid: 'col-span-1 row-span-2', style: { gridRow: 'span 2', height: '100%', minHeight: 280 },
+              },
+              {
+                url: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80',
+                label: 'Paisaje agrícola', sub: 'Vista general de la granja',
+                grid: '', style: { height: 160 },
+              },
+              {
+                url: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&q=80',
+                label: 'Investigación aplicada', sub: 'Proyectos activos',
+                grid: '', style: { height: 160 },
+              },
+              {
+                url: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80',
+                label: 'Invernadero y vivero', sub: 'Producción de material vegetal',
+                grid: '', style: { height: 160 },
+              },
+              {
+                url: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80',
+                label: 'Parcelas experimentales', sub: 'Ensayos varietales',
+                grid: '', style: { height: 160 },
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                style={{ ...item.style, borderRadius: 12, overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
+                onMouseEnter={e => {
+                  const img = (e.currentTarget as HTMLElement).querySelector('.gallery-img') as HTMLElement;
+                  if (img) img.style.transform = 'scale(1.06)';
+                }}
+                onMouseLeave={e => {
+                  const img = (e.currentTarget as HTMLElement).querySelector('.gallery-img') as HTMLElement;
+                  if (img) img.style.transform = 'scale(1)';
+                }}
+              >
                 <div
-                  style={{ borderRadius: 12, background: `linear-gradient(${item.g})`, height: 108, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,0,0,0.18)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
-                >
-                  <i className="material-icons" style={{ color: 'rgba(255,255,255,0.92)', fontSize: 34 }}>{item.icon}</i>
-                  <span style={{ color: 'rgba(255,255,255,0.88)', fontSize: 11, fontWeight: 600, textAlign: 'center', padding: '0 10px' }}>{item.label}</span>
+                  className="gallery-img"
+                  style={{
+                    position: 'absolute', inset: 0,
+                    backgroundImage: `url(${item.url})`,
+                    backgroundSize: 'cover', backgroundPosition: 'center',
+                    transition: 'transform 0.4s ease',
+                  }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.68) 0%, transparent 55%)' }} />
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
+                  <div style={{ fontSize: i === 0 ? 15 : 13, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{item.label}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>{item.sub}</div>
                 </div>
               </div>
             ))}
           </div>
-          <p style={{ fontSize: 11, color: '#818EA3', marginTop: 4, marginBottom: 0, textAlign: 'center' }}>
-            Galería multimedia en desarrollo — próximamente fotos y videos reales de la granja.
-          </p>
         </div>
 
         {/* ── Mapa Google Maps ── */}
@@ -424,10 +549,12 @@ export default function GranjaPage() {
                   </i>
                   {geoLoading ? 'Localizando...' : '¿Dónde estoy?'}
                 </button>
-                <button className="btn btn-sm" style={{ background: C.verde, color: '#fff', borderRadius: 20, border: 'none' }} onClick={() => navigate(ROUTES.ZONAS)}>
-                  <i className="material-icons" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>layers</i>
-                  Ver zonas
-                </button>
+                {!isMobile && (
+                  <button className="btn btn-sm" style={{ background: C.verde, color: '#fff', borderRadius: 20, border: 'none' }} onClick={() => navigate(ROUTES.ZONAS)}>
+                    <i className="material-icons" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>layers</i>
+                    Ver zonas
+                  </button>
+                )}
               </div>
             </div>
             {geoErr && (
@@ -469,8 +596,8 @@ export default function GranjaPage() {
               )}
             </div>
 
-            {/* Panel lateral */}
-            <div style={{ width: 272, borderLeft: '1px solid #F0F2F5', overflowY: 'auto', background: '#FAFAFA', flexShrink: 0 }}>
+            {/* Panel lateral — oculto en mobile via CSS (.granja-side-panel) */}
+            <div className="granja-side-panel" style={{ width: 272, borderLeft: '1px solid #F0F2F5', overflowY: 'auto', background: '#FAFAFA', flexShrink: 0 }}>
               <div style={{ padding: '10px 14px', borderBottom: '1px solid #F0F2F5', background: '#fff', position: 'sticky', top: 0, zIndex: 1 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   {selected ? 'Información del área' : 'Zonas de la granja'}
@@ -596,69 +723,253 @@ export default function GranjaPage() {
           </div>
         </div>
 
-        {/* ── Leyenda ── */}
-        <div className="card mb-4" style={{ padding: '1rem 1.5rem' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Leyenda del mapa</div>
-          <div className="d-flex flex-wrap" style={{ gap: 14 }}>
-            {[
-              { color: C.verde,   label: 'Lotes productivos' },
-              { color: '#DDA15E', label: 'Parcelas demostrativas' },
-              { color: '#FBBF24', label: 'Cultivo de mango' },
-              { color: '#0369A1', label: 'Estanques / reservorios' },
-              { color: '#7C3AED', label: 'Vivero' },
-              { color: '#134E1B', label: 'Islas / conservación' },
-            ].map(l => (
-              <div key={l.label} className="d-flex align-items-center" style={{ gap: 6 }}>
-                <div style={{ width: 14, height: 14, background: l.color, borderRadius: 3 }} />
-                <span style={{ fontSize: 11, color: '#555' }}>{l.label}</span>
-              </div>
-            ))}
-          </div>
+        {/* ══════════════════════════════════════════════
+            LEYENDA DEL MAPA
+        ══════════════════════════════════════════════ */}
+        <div style={{ background: '#fff', border: '1px solid #E4E8EF', borderRadius: 14, padding: '1.1rem 1.5rem', marginBottom: 28, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: 8, flexShrink: 0 }}>Leyenda:</span>
+          {[
+            { color: C.verde,   label: 'Lotes productivos' },
+            { color: '#DDA15E', label: 'Parcelas demostrativas' },
+            { color: '#FBBF24', label: 'Cultivo de mango' },
+            { color: '#0369A1', label: 'Estanques / reservorios' },
+            { color: '#7C3AED', label: 'Vivero' },
+            { color: '#134E1B', label: 'Islas / conservación' },
+          ].map(l => (
+            <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#F8F9FA', borderRadius: 20, border: '1px solid #EAEDF0' }}>
+              <div style={{ width: 10, height: 10, background: l.color, borderRadius: 2, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: '#5A6169' }}>{l.label}</span>
+            </div>
+          ))}
         </div>
 
-        {/* ── Datos curiosos ── */}
-        <div className="card mb-4" style={{ padding: '1.5rem' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Datos curiosos</div>
-          <div className="row">
-            {CURIOSIDADES.map(d => (
-              <div key={d.icon} className="col-12 col-md-6 mb-3">
-                <div className="d-flex" style={{ gap: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F0F7F4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <i className="material-icons" style={{ color: C.verde, fontSize: 18 }}>{d.icon}</i>
+        {/* ══════════════════════════════════════════════
+            DATOS CURIOSOS
+        ══════════════════════════════════════════════ */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <i className="material-icons" style={{ color: '#fff', fontSize: 18 }}>lightbulb</i>
+            </div>
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 1 }}>¿Sabías que?</p>
+              <h4 style={{ fontSize: 17, fontWeight: 800, color: '#3D5170', margin: 0 }}>Datos curiosos de la granja</h4>
+            </div>
+          </div>
+          <div className="row" style={{ gap: 0 }}>
+            {CURIOSIDADES.map((d, i) => (
+              <div key={d.icon} className="col-12 col-md-6 col-lg-4 mb-3">
+                <div style={{
+                  height: '100%', padding: '1.1rem 1.3rem',
+                  background: '#fff', border: '1px solid #E4E8EF', borderRadius: 12,
+                  borderTop: `3px solid ${['#2D6A4F','#C8A84B','#8B1A1A','#1E40AF','#7C3AED','#92400E'][i % 6]}`,
+                  transition: 'box-shadow 0.2s, transform 0.2s',
+                }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,0,0,0.09)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{
+                      width: 38, height: 38, borderRadius: 10,
+                      background: ['#F0F7F4','#FDF6E3','#FEF2F2','#EFF6FF','#F5F3FF','#FFF7ED'][i % 6],
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      <i className="material-icons" style={{ color: ['#2D6A4F','#C8A84B','#8B1A1A','#1E40AF','#7C3AED','#92400E'][i % 6], fontSize: 18 }}>{d.icon}</i>
+                    </div>
+                    <p style={{ fontSize: 12, color: '#555', lineHeight: 1.8, marginBottom: 0, paddingTop: 4 }}>{d.text}</p>
                   </div>
-                  <p style={{ fontSize: 12, color: '#555', lineHeight: 1.78, marginBottom: 0, paddingTop: 7 }}>{d.text}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── Hoja de ruta ── */}
-        <div className="card mt-2" style={{ padding: '1rem 1.5rem', borderLeft: '4px solid #C8A84B', background: '#FDFAF4' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#C8A84B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
-            <i className="material-icons" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>tips_and_updates</i>
-            Hoja de ruta — funcionalidades futuras
-          </div>
-          <div className="row">
-            {[
-              { icon: 'photo_library', text: 'Galería multimedia real con fotos y videos subidos desde administración' },
-              { icon: 'terrain',       text: 'Terreno 3D real con datos de elevación DEM del IGAC' },
-              { icon: 'sensors',       text: 'Integración con sensores IoT de suelo, temperatura y humedad por lote' },
-              { icon: 'edit_location', text: 'Edición de zonas y asignación dinámica de cultivos por lote' },
-            ].map(r => (
-              <div key={r.icon} className="col-12 col-md-6 mb-2">
-                <div className="d-flex align-items-start" style={{ gap: 8 }}>
-                  <i className="material-icons" style={{ color: '#C8A84B', fontSize: 16, marginTop: 2, flexShrink: 0 }}>{r.icon}</i>
-                  <span style={{ fontSize: 12, color: '#7A6020' }}>{r.text}</span>
-                </div>
+        {/* ══════════════════════════════════════════════
+            HOJA DE RUTA
+        ══════════════════════════════════════════════ */}
+        <div style={{
+          borderRadius: 14, overflow: 'hidden', marginBottom: 8,
+          background: 'linear-gradient(135deg, #3D3000 0%, #5C4A00 40%, #7A6020 100%)',
+          padding: '1.8rem 2rem', position: 'relative',
+        }}>
+          {/* Decorativo */}
+          <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(200,168,75,0.08)' }} />
+          <div style={{ position: 'absolute', bottom: -30, left: -30, width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <i className="material-icons" style={{ color: '#C8A84B', fontSize: 22 }}>rocket_launch</i>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,168,75,0.7)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 0 }}>Próximamente</p>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#C8A84B', margin: 0 }}>Funcionalidades en desarrollo</h4>
               </div>
-            ))}
+            </div>
+            <div className="row">
+              {[
+                { icon: 'photo_library', title: 'Galería multimedia',   text: 'Fotos y videos reales subidos desde administración' },
+                { icon: 'terrain',       title: 'Modelo 3D del terreno', text: 'Datos de elevación DEM del IGAC en tiempo real' },
+                { icon: 'sensors',       title: 'Sensores IoT',          text: 'Temperatura, humedad y nutrientes por lote' },
+                { icon: 'edit_location', title: 'Gestión de zonas',      text: 'Asignación dinámica de cultivos y responsables' },
+              ].map(r => (
+                <div key={r.icon} className="col-12 col-sm-6 mb-3">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(200,168,75,0.15)', border: '1px solid rgba(200,168,75,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <i className="material-icons" style={{ color: '#C8A84B', fontSize: 18 }}>{r.icon}</i>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.88)', marginBottom: 2 }}>{r.title}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{r.text}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
       </div>
 
     </div>
+
+    {/* ── MOBILE: Botón flotante "Ver zonas" ── */}
+    {isMobile && (
+      <button
+        onClick={() => setShowListSheet(true)}
+        style={{
+          position: 'fixed', bottom: 24, right: 20, zIndex: 1040,
+          background: 'var(--usco-red)', color: '#fff',
+          border: 'none', borderRadius: 28,
+          padding: '11px 20px', boxShadow: '0 4px 20px rgba(139,26,26,0.45)',
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 13, fontWeight: 700, cursor: 'pointer',
+        }}
+      >
+        <i className="material-icons" style={{ fontSize: 18 }}>layers</i>
+        Ver zonas
+      </button>
+    )}
+
+    {/* ── MOBILE: Bottom sheet — lista de zonas ── */}
+    {isMobile && showListSheet && (
+      <>
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1045 }}
+          onClick={() => setShowListSheet(false)}
+        />
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1050,
+          background: '#fff', borderRadius: '20px 20px 0 0',
+          maxHeight: '72vh', display: 'flex', flexDirection: 'column',
+          boxShadow: '0 -8px 40px rgba(0,0,0,0.22)',
+        }}>
+          {/* Handle */}
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px' }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#D0D5DD' }} />
+          </div>
+          {/* Header */}
+          <div style={{ padding: '10px 20px 12px', borderBottom: '1px solid #F0F2F5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#3D5170' }}>
+              Zonas de la granja
+              <span style={{ fontSize: 11, color: '#818EA3', fontWeight: 400, marginLeft: 6 }}>({zonas.length} zonas)</span>
+            </span>
+            <button onClick={() => setShowListSheet(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#818EA3', padding: 4 }}>
+              <i className="material-icons" style={{ fontSize: 20 }}>close</i>
+            </button>
+          </div>
+          {/* Lista */}
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            {zonas.map(area => (
+              <button
+                key={area.id}
+                onClick={() => flyToArea(area)}
+                style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '12px 20px', textAlign: 'left', borderBottom: '1px solid #F0F2F5', display: 'flex', alignItems: 'center', gap: 12 }}
+              >
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: area.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <i className="material-icons" style={{ color: area.color, fontSize: 18 }}>{TIPO_ICON[area.tipo]}</i>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#3D5170' }}>{area.nombre}</div>
+                  <div style={{ fontSize: 11, color: '#818EA3' }}>{area.superficie ?? area.tipo}</div>
+                </div>
+                <i className="material-icons" style={{ fontSize: 18, color: '#C8D2E0' }}>chevron_right</i>
+              </button>
+            ))}
+          </div>
+        </div>
+      </>
+    )}
+
+    {/* ── MOBILE: Bottom sheet — detalle de zona seleccionada ── */}
+    {isMobile && showZonaSheet && selected && (
+      <>
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1045 }}
+          onClick={() => setShowZonaSheet(false)}
+        />
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1050,
+          background: '#fff', borderRadius: '20px 20px 0 0',
+          maxHeight: '75vh', display: 'flex', flexDirection: 'column',
+          boxShadow: '0 -8px 40px rgba(0,0,0,0.22)',
+        }}>
+          {/* Handle */}
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px', flexShrink: 0 }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#D0D5DD' }} />
+          </div>
+          {/* Header */}
+          <div style={{ padding: '8px 20px 12px', borderBottom: '1px solid #F0F2F5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            <button
+              onClick={() => { setShowZonaSheet(false); setShowListSheet(true); }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#818EA3', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <i className="material-icons" style={{ fontSize: 16 }}>arrow_back</i> Todas las zonas
+            </button>
+            <button onClick={() => { setShowZonaSheet(false); setSelected(null); resetView(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#818EA3', padding: 4 }}>
+              <i className="material-icons" style={{ fontSize: 20 }}>close</i>
+            </button>
+          </div>
+          {/* Contenido */}
+          <div style={{ overflowY: 'auto', flex: 1, padding: 20 }}>
+            {/* Cabecera colorida */}
+            <div style={{ background: `linear-gradient(135deg, ${selected.color}CC, ${selected.color}77)`, borderRadius: 14, padding: '14px 16px 12px', marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <i className="material-icons" style={{ color: '#fff', fontSize: 22 }}>{TIPO_ICON[selected.tipo]}</i>
+                </div>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{selected.nombre}</div>
+                  {selected.superficie && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.82)' }}>{selected.superficie}</div>}
+                </div>
+              </div>
+              <span style={{ background: 'rgba(255,255,255,0.22)', color: '#fff', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+                {selected.tipo === 'lote' ? 'Lote productivo' : selected.tipo === 'estanque' ? 'Estanque' : selected.tipo === 'invernadero' ? 'Vivero' : 'Conservación'}
+              </span>
+            </div>
+
+            {selected.descripcion && (
+              <p style={{ fontSize: 13, color: '#555', lineHeight: 1.75, marginBottom: 12 }}>
+                {selected.descripcion.length > 200 ? selected.descripcion.slice(0, 200) + '…' : selected.descripcion}
+              </p>
+            )}
+
+            {selected.detalle && (
+              <div style={{ padding: '10px 12px', background: selected.color + '18', borderRadius: 8, borderLeft: `3px solid ${selected.color}`, marginBottom: 14 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: selected.color, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Datos técnicos</div>
+                <p style={{ fontSize: 12, color: '#555', lineHeight: 1.65, marginBottom: 0 }}>{selected.detalle}</p>
+              </div>
+            )}
+
+            <button
+              onClick={() => navigate(ROUTES.ZONAS)}
+              style={{ width: '100%', padding: '11px', borderRadius: 10, border: `1.5px solid ${selected.color}`, background: selected.color + '12', color: selected.color, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}
+            >
+              <i className="material-icons" style={{ fontSize: 16 }}>open_in_new</i>
+              Ver ficha completa
+            </button>
+          </div>
+        </div>
+      </>
+    )}
 
     {/* Portal: panel de zona en pantalla completa — se inyecta dentro del elemento fullscreen real */}
     {fsElement && selected && createPortal(

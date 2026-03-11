@@ -244,13 +244,13 @@ td[style*="fontWeight"] {
    RESPONSIVE — Mobile first
    ============================================ */
 
-/* ---- Botón hamburguesa (siempre en DOM, visible solo en mobile via d-md-none) ---- */
+/* ---- Botón hamburguesa: oculto en desktop, visible en mobile ---- */
 .navbar-hamburger {
+  display: none !important; /* !important para ganarle a Shards Dashboard */
   background: none;
   border: none;
   cursor: pointer;
   padding: 0 16px;
-  display: flex;
   align-items: center;
   color: #3D5170;
   flex-shrink: 0;
@@ -278,35 +278,34 @@ td[style*="fontWeight"] {
 }
 
 /* ============================================
-   Mobile: < 768px
+   Tablet + Mobile: < 992px
+   Sidebar como overlay, hamburguesa visible
    ============================================ */
-@media (max-width: 767.98px) {
+@media (max-width: 991.98px) {
 
-  /* Sidebar: fijo, fuera de pantalla con transform (más confiable que left) */
+  /* Sidebar: fijo, fuera de pantalla */
   .main-sidebar {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     height: 100vh !important;
-    width: 260px !important;
-    max-width: 82vw !important;
+    width: 270px !important;
+    max-width: 85vw !important;
     z-index: 1060 !important;
     transform: translateX(-110%) !important;
     transition: transform 0.28s cubic-bezier(.4, 0, .2, 1),
                 box-shadow 0.28s ease !important;
     box-shadow: none !important;
-    /* Romper la cuadrícula Bootstrap en mobile */
     flex: none !important;
     padding: 0 !important;
   }
 
-  /* Sidebar abierto */
   .main-sidebar.sidebar-open {
     transform: translateX(0) !important;
     box-shadow: 6px 0 28px rgba(0, 0, 0, 0.32) !important;
   }
 
-  /* Main content: ancho completo, sin offset de columna */
+  /* Main content: ancho completo, sin offset */
   .main-content {
     margin-left: 0 !important;
     width: 100% !important;
@@ -314,7 +313,7 @@ td[style*="fontWeight"] {
     padding-left: 0 !important;
   }
 
-  /* Overlay visible */
+  /* Overlay oscuro */
   .sidebar-overlay {
     display: block;
     position: fixed;
@@ -329,15 +328,14 @@ td[style*="fontWeight"] {
     to   { opacity: 1; }
   }
 
-  /* Botón cerrar sidebar visible en mobile */
-  .sidebar-close-btn {
+  /* Botón hamburguesa visible */
+  .navbar-hamburger {
     display: flex !important;
   }
 
-  /* Nombre de la granja visible en mobile dentro del sidebar */
-  .main-sidebar .navbar-brand span.d-none {
-    display: inline !important;
-    font-size: 0.9rem !important;
+  /* Botón X visible */
+  .sidebar-close-btn {
+    display: flex !important;
   }
 
   /* Tablas: scroll horizontal */
@@ -354,5 +352,45 @@ td[style*="fontWeight"] {
   /* Título de página más compacto */
   .page-header h3.page-title {
     font-size: 1.35rem !important;
+  }
+}
+
+/* ============================================
+   Solo móvil: < 768px
+   ============================================ */
+@media (max-width: 767.98px) {
+
+  /* ---- Login Versión A: de columnas fijas a layout apilado ---- */
+  .login-a-wrapper {
+    flex-direction: column !important;
+  }
+  .login-a-carousel {
+    flex: 0 0 38vh !important;
+    height: 38vh !important;
+  }
+  .login-a-form {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 0 20px !important;
+  }
+  .login-a-carousel-brand {
+    display: none !important;
+  }
+
+  /* ---- Login Versión B: más compacto ---- */
+  .login-b-header {
+    padding: 14px 20px !important;
+  }
+  .login-b-modal {
+    margin: 0 12px !important;
+    border-radius: 14px !important;
+  }
+  .login-b-modal-inner {
+    padding: 20px 22px 18px !important;
+  }
+
+  /* ---- Granja: ocultar panel lateral del mapa ---- */
+  .granja-side-panel {
+    display: none !important;
   }
 }

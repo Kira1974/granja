@@ -18,28 +18,30 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   );
 
   return (
-    <aside className={`main-sidebar col-12 col-md-3 col-lg-2 px-0${open ? ' sidebar-open' : ''}`}>
-      {/* Logo + botón cerrar (mobile) */}
-      <div className="main-navbar">
-        <nav className="navbar align-items-stretch flex-md-nowrap border-bottom p-0">
-          <div className="navbar-brand w-100 mr-0" style={{ lineHeight: '25px', cursor: 'default' }}>
-            <div className="d-table m-auto">
-              <img
-                src={uscoLogo}
-                alt="USCO"
-                style={{ maxWidth: 40, maxHeight: 40, objectFit: 'contain' }}
-                className="d-inline-block align-top mr-2"
-              />
-              <span className="d-none d-md-inline" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
-                Granja Experimental
-              </span>
-            </div>
-          </div>
-          {/* Botón X — solo visible en mobile */}
-          <button className="d-md-none sidebar-close-btn" onClick={onClose} aria-label="Cerrar menú">
-            <i className="material-icons">close</i>
-          </button>
-        </nav>
+    <aside className={`main-sidebar col-lg-2 col-12 px-0${open ? ' sidebar-open' : ''}`}>
+
+      {/* Header: logo + botón X */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 14px 0 18px', height: 56,
+        background: '#fff', borderBottom: '2px solid var(--usco-red)',
+        flexShrink: 0,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img
+            src={uscoLogo}
+            alt="USCO"
+            style={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0 }}
+          />
+          <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--usco-red-dark)', whiteSpace: 'nowrap' }}>
+            Granja Experimental
+          </span>
+        </div>
+
+        {/* X solo en mobile/tablet (< 992px), controlado por CSS */}
+        <button className="sidebar-close-btn" onClick={onClose} aria-label="Cerrar menú">
+          <i className="material-icons">close</i>
+        </button>
       </div>
 
       {/* Nav items */}

@@ -16,7 +16,7 @@ export default function Layout() {
           <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
         )}
 
-        <main className="main-content col-lg-10 col-md-9 col-sm-12 p-0 offset-lg-2 offset-md-3">
+        <main className="main-content col-lg-10 col-12 p-0 offset-lg-2">
           <MainNavbar onToggleSidebar={() => setSidebarOpen(o => !o)} />
           <Outlet />
         </main>

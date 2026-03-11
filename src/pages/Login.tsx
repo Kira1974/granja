@@ -150,9 +150,9 @@ export default function LoginPage() {
   // ── Versión A: carrusel + form ─────────────────────────────────────────────
   if (version === 'a') {
     return (
-      <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <div className="login-a-wrapper" style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
         {/* Carrusel 68% */}
-        <div style={{ flex: '0 0 68%', position: 'relative', overflow: 'hidden' }}>
+        <div className="login-a-carousel" style={{ flex: '0 0 68%', position: 'relative', overflow: 'hidden' }}>
           {SLIDES.map((s, i) => (
             <div
               key={i}
@@ -169,7 +169,7 @@ export default function LoginPage() {
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(139,26,26,0.35) 0%, rgba(0,0,0,0.55) 100%)' }} />
 
           {/* Branding superior */}
-          <div style={{ position: 'absolute', top: 32, left: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="login-a-carousel-brand" style={{ position: 'absolute', top: 32, left: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
             <img src={uscoLogo} alt="USCO" style={{ width: 38, height: 38, objectFit: 'contain', filter: 'brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
             <div>
               <div style={{ color: '#fff', fontWeight: 700, fontSize: 14, lineHeight: 1 }}>Universidad Surcolombiana</div>
@@ -180,7 +180,7 @@ export default function LoginPage() {
         </div>
 
         {/* Form 32% — rojo USCO directo */}
-        <div style={{
+        <div className="login-a-form" style={{
           flex: '0 0 32%',
           background: 'linear-gradient(145deg, #6B0F0F 0%, #8B1A1A 50%, #5A0A0A 100%)',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
@@ -289,7 +289,7 @@ export default function LoginPage() {
       <div style={{ position: 'fixed', bottom: '20%', right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.03)', pointerEvents: 'none' }} />
 
       {/* Header superior */}
-      <div style={{ padding: '20px 40px', display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0, position: 'relative', zIndex: 1 }}>
+      <div className="login-b-header" style={{ padding: '20px 40px', display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ width: 50, height: 50, borderRadius: 13, background: 'rgba(255,255,255,0.13)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backdropFilter: 'blur(4px)' }}>
           <img src={uscoLogo} alt="USCO" style={{ width: 36, height: 36, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
         </div>
@@ -306,7 +306,7 @@ export default function LoginPage() {
 
       {/* Modal central */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 24px 16px', position: 'relative', zIndex: 1, minHeight: 0 }}>
-        <div style={{
+        <div className="login-b-modal" style={{
           width: '100%', maxWidth: 420,
           background: '#F0EEEE',
           borderRadius: 20,
@@ -318,7 +318,7 @@ export default function LoginPage() {
           {/* Franja dorada superior del modal */}
           <div style={{ height: 4, background: 'linear-gradient(90deg, #8B1A1A, #C8A84B, #8B1A1A)', flexShrink: 0 }} />
 
-          <div style={{ padding: '24px 36px 22px' }}>
+          <div className="login-b-modal-inner" style={{ padding: '24px 36px 22px' }}>
             {/* Logo + título */}
             <div style={{ textAlign: 'center', marginBottom: 22 }}>
               <div style={{
