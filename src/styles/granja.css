@@ -1,0 +1,358 @@
+/* ============================================
+   GranjaUSCO — Overrides sobre Shards Dashboard
+   Paleta: Rojo USCO, dorado, verde agrícola
+   ============================================ */
+
+/* Fondo general */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: #FFFFFF !important;
+}
+
+/* Cards */
+.card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E4E8EF !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+/* Navbar superior */
+.main-navbar.bg-white {
+  border-bottom: 2px solid var(--usco-red) !important;
+  box-shadow: none !important;
+}
+
+:root {
+  --usco-red:       #8B1A1A;
+  --usco-red-dark:  #6B0F0F;
+  --usco-red-light: #C0392B;
+  --usco-gold:      #C8A84B;
+  --usco-gold-light:#E8C96A;
+  --usco-green:     #2D6A4F;
+  --usco-green-light: #52B788;
+}
+
+/* ---- Sidebar ---- */
+.main-sidebar {
+  background-color: var(--usco-red-dark) !important;
+}
+
+/* Logo area — fondo blanco para contraste con el logo USCO */
+.main-sidebar .main-navbar,
+.main-sidebar .main-navbar .navbar {
+  background-color: #fff !important;
+}
+
+.main-sidebar .main-navbar {
+  border-bottom: 2px solid var(--usco-red) !important;
+}
+
+.main-sidebar .main-navbar .navbar-brand,
+.main-sidebar .main-navbar .navbar-brand span {
+  color: var(--usco-red-dark) !important;
+}
+
+.main-sidebar .nav-wrapper {
+  background-color: var(--usco-red-dark) !important;
+}
+
+.main-sidebar .nav-wrapper .nav .nav-link {
+  color: rgba(255,255,255,0.65) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+.main-sidebar .nav-wrapper .nav .nav-link .material-icons {
+  color: rgba(255,255,255,0.4) !important;
+}
+
+.main-sidebar .nav-wrapper .nav .nav-link:hover {
+  background-color: rgba(255,255,255,0.07) !important;
+  box-shadow: inset 3px 0 0 var(--usco-gold) !important;
+  color: var(--usco-gold) !important;
+}
+
+.main-sidebar .nav-wrapper .nav .nav-link:hover .material-icons {
+  color: var(--usco-gold) !important;
+}
+
+.main-sidebar .nav-wrapper .nav .nav-link.active {
+  background-color: rgba(255,255,255,0.1) !important;
+  box-shadow: inset 3px 0 0 var(--usco-gold) !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+}
+
+.main-sidebar .nav-wrapper .nav .nav-link.active .material-icons {
+  color: var(--usco-gold) !important;
+}
+
+/* ---- Top Navbar ---- */
+.main-navbar.bg-white {
+  border-bottom: 2px solid var(--usco-red) !important;
+}
+
+/* ---- Buttons primary ---- */
+.btn-primary {
+  background-color: var(--usco-red) !important;
+  border-color: var(--usco-red) !important;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--usco-red-dark) !important;
+  border-color: var(--usco-red-dark) !important;
+}
+
+/* ---- Badges ---- */
+.badge-primary {
+  background-color: var(--usco-red) !important;
+}
+
+/* ---- Footer ---- */
+.main-footer {
+  border-top: 1px solid #e3e6ec !important;
+}
+
+/* ---- Page title ---- */
+.page-title {
+  color: #3D5170;
+}
+
+/* ---- Tablas ---- */
+.thead-light th {
+  background-color: #FBF5E6 !important;
+  border-color: #F0E4C0 !important;
+  color: #7A6020 !important;
+}
+
+.table {
+  border-color: #E4E8EF !important;
+}
+
+.table td {
+  border-color: #EEF1F5 !important;
+}
+
+.table tbody tr td {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #EBEBEB !important;
+}
+
+.table tbody tr:hover td {
+  background-color: #FAFAFA !important;
+}
+
+/* ---- Tablas — tamaño de fuente compacto ---- */
+.table tbody td {
+  font-size: 0.8rem !important;
+}
+
+/* ---- Tablas — texto neutro, sin azul-gris ---- */
+.table td,
+.table th {
+  color: #5A6169 !important;
+  vertical-align: middle !important;
+}
+
+.table td strong,
+.table td span[style*="fontWeight"],
+td[style*="font-weight: 600"],
+td[style*="fontWeight"] {
+  color: #3D3D3D !important;
+}
+
+/* ---- Formularios ---- */
+.form-control {
+  border-color: #e3e6ec !important;
+  color: #3D5170 !important;
+  font-size: 0.85rem !important;
+}
+
+.form-control:focus {
+  border-color: var(--usco-red) !important;
+  box-shadow: 0 0 0 0.2rem rgba(139, 26, 26, 0.15) !important;
+}
+
+.form-label {
+  color: #818EA3 !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* ---- Modal ---- */
+.modal-usco .card-header {
+  background: linear-gradient(135deg, var(--usco-red-dark) 0%, var(--usco-red) 100%) !important;
+  border-bottom: none !important;
+}
+
+.modal-usco .card-header h5 {
+  color: #fff !important;
+}
+
+.modal-usco .card-header .btn-light {
+  background: rgba(255,255,255,0.15) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+.modal-usco .card-header .btn-light:hover {
+  background: rgba(255,255,255,0.25) !important;
+}
+
+/* ---- User info en sidebar ---- */
+.sidebar-user-info {
+  padding: 1rem 1.5625rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.15);
+}
+
+.sidebar-user-info .user-name {
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+
+.sidebar-user-info .user-role {
+  color: var(--usco-gold);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sidebar-user-info .btn-logout {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.75rem;
+  padding: 4px 0 0;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s;
+}
+
+.sidebar-user-info .btn-logout:hover {
+  color: rgba(255,255,255,0.8);
+}
+
+/* ============================================
+   RESPONSIVE — Mobile first
+   ============================================ */
+
+/* ---- Botón hamburguesa (siempre en DOM, visible solo en mobile via d-md-none) ---- */
+.navbar-hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  color: #3D5170;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.navbar-hamburger .material-icons { font-size: 26px; }
+
+/* ---- Botón X cerrar sidebar ---- */
+.sidebar-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.65);
+  padding: 0 12px;
+  display: none; /* solo mobile */
+  align-items: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.sidebar-close-btn .material-icons { font-size: 22px; }
+
+/* ---- Overlay oscuro ---- */
+.sidebar-overlay {
+  display: none;
+}
+
+/* ============================================
+   Mobile: < 768px
+   ============================================ */
+@media (max-width: 767.98px) {
+
+  /* Sidebar: fijo, fuera de pantalla con transform (más confiable que left) */
+  .main-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    width: 260px !important;
+    max-width: 82vw !important;
+    z-index: 1060 !important;
+    transform: translateX(-110%) !important;
+    transition: transform 0.28s cubic-bezier(.4, 0, .2, 1),
+                box-shadow 0.28s ease !important;
+    box-shadow: none !important;
+    /* Romper la cuadrícula Bootstrap en mobile */
+    flex: none !important;
+    padding: 0 !important;
+  }
+
+  /* Sidebar abierto */
+  .main-sidebar.sidebar-open {
+    transform: translateX(0) !important;
+    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.32) !important;
+  }
+
+  /* Main content: ancho completo, sin offset de columna */
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 0 !important;
+  }
+
+  /* Overlay visible */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1055;
+    animation: overlayIn 0.22s ease forwards;
+  }
+
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Botón cerrar sidebar visible en mobile */
+  .sidebar-close-btn {
+    display: flex !important;
+  }
+
+  /* Nombre de la granja visible en mobile dentro del sidebar */
+  .main-sidebar .navbar-brand span.d-none {
+    display: inline !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Tablas: scroll horizontal */
+  .card {
+    overflow-x: auto !important;
+  }
+
+  /* Padding del contenido */
+  .main-content-container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  /* Título de página más compacto */
+  .page-header h3.page-title {
+    font-size: 1.35rem !important;
+  }
+}

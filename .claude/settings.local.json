@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run:*)",
+      "Bash(cd \"C:/Users/johan/Downloads/PROYECTO DE GRADO/Frontend-Granja\" && npx tsc --noEmit 2>&1 | grep -v \"Login.tsx\")",
+      "Bash(find \"C:/Users/johan/Downloads/PROYECTO DE GRADO/Frontend-Granja\" -name \"*.png\" -o -name \"*.jpg\" -o -name \"*.jpeg\" -o -name \"*.webp\" | sort -t/ -k1 2>/dev/null | tail -20)"
+    ]
+  }
+}
