@@ -97,7 +97,7 @@ function makeMarkerIcon(color: string, tipo: AreaTipo, size: number): string {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 export default function GranjaPage() {
-  useAuth();
+  const { user } = useAuth();
   const navigate  = useNavigate();
   const [selected,       setSelected]       = useState<AreaInfo | null>(null);
   const [zona,           setZona]           = useState<string | null>(null);
@@ -783,6 +783,94 @@ export default function GranjaPage() {
             ))}
           </div>
         </div>
+
+        {/* ══════════════════════════════════════════════
+            ACCESO AL SISTEMA — solo para visitantes sin sesión
+        ══════════════════════════════════════════════ */}
+        {!user && (
+          <div style={{
+            borderRadius: 16, overflow: 'hidden', marginBottom: 28,
+            background: 'linear-gradient(135deg, #6B0F0F 0%, #8B1A1A 50%, #5A0A0A 100%)',
+            padding: '2rem 2rem 1.8rem', position: 'relative',
+          }}>
+            {/* Decorativos */}
+            <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(200,168,75,0.08)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -30, left: -30, width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              {/* Cabecera */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(200,168,75,0.2)', border: '1px solid rgba(200,168,75,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <i className="material-icons" style={{ color: '#C8A84B', fontSize: 22 }}>manage_accounts</i>
+                </div>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,168,75,0.7)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 2 }}>Sistema de trazabilidad</p>
+                  <h4 style={{ fontSize: 17, fontWeight: 800, color: '#C8A84B', margin: 0 }}>¿Eres parte del equipo?</h4>
+                </div>
+              </div>
+
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, marginBottom: 20, maxWidth: 520 }}>
+                El sistema de gestión de la Granja Experimental permite hacer seguimiento de cultivos, inventario, maquinaria y más. Inicia sesión para acceder a las secciones administrativas.
+              </p>
+
+              {/* Grid de módulos */}
+              <div className="row" style={{ marginBottom: 22 }}>
+                {[
+                  { icon: 'assignment',        label: 'Coordinación',  path: ROUTES.COORDINACION },
+                  { icon: 'inventory_2',        label: 'Inventario',    path: ROUTES.INVENTARIO },
+                  { icon: 'grass',              label: 'Cultivos',      path: ROUTES.CULTIVOS },
+                  { icon: 'agriculture',        label: 'Tractor',       path: ROUTES.TRACTOR },
+                  { icon: 'local_gas_station',  label: 'Combustibles',  path: ROUTES.COMBUSTIBLE },
+                  { icon: 'bar_chart',          label: 'Reportes',      path: ROUTES.REPORTES },
+                ].map(item => (
+                  <div key={item.path} className="col-6 col-sm-4 col-md-2 mb-3">
+                    <button
+                      onClick={() => navigate(item.path)}
+                      style={{
+                        width: '100%', padding: '14px 8px', borderRadius: 12,
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        background: 'rgba(255,255,255,0.08)',
+                        color: '#fff', cursor: 'pointer', textAlign: 'center',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(200,168,75,0.2)';
+                        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(200,168,75,0.4)';
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)';
+                        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.12)';
+                      }}
+                    >
+                      <i className="material-icons" style={{ fontSize: 22, color: '#C8A84B', display: 'block', marginBottom: 6 }}>{item.icon}</i>
+                      <span style={{ fontSize: 11, fontWeight: 600 }}>{item.label}</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Botón principal */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => navigate(ROUTES.LOGIN)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '11px 28px', borderRadius: 22, border: 'none',
+                    background: '#fff', color: '#8B1A1A',
+                    fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                  }}
+                >
+                  <i className="material-icons" style={{ fontSize: 18 }}>login</i>
+                  Iniciar sesión
+                </button>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
+                  Al ingresar podrás gestionar cultivos, inventario, maquinaria y más.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ══════════════════════════════════════════════
             HOJA DE RUTA

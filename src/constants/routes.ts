@@ -1,5 +1,6 @@
 export const ROUTES = {
   LOGIN:               '/login',
+  REGISTRO:            '/registro',
   GRANJA:              '/granja',
   ZONAS:               '/granja/zonas',
   COORDINACION:        '/coordinacion',

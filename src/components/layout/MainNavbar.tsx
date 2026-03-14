@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { ROUTES } from '@/constants/routes';
+import uscoLogo from '@/assets/USCO_Logo.png';
 
 interface Notificacion {
   id: number;
@@ -61,6 +64,7 @@ interface MainNavbarProps {
 
 export default function MainNavbar({ onToggleSidebar }: MainNavbarProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [profileOpen, setProfileOpen]   = useState(false);
   const [notifOpen, setNotifOpen]       = useState(false);
   const [notifs, setNotifs]             = useState<Notificacion[]>(MOCK_NOTIFS);
@@ -77,20 +81,51 @@ export default function MainNavbar({ onToggleSidebar }: MainNavbarProps) {
     <div className="main-navbar sticky-top bg-white">
       <nav className="navbar align-items-stretch navbar-light flex-md-nowrap p-0">
 
-        {/* Botón hamburguesa — solo mobile (visible vía CSS media query) */}
-        <button
-          className="navbar-hamburger"
-          onClick={onToggleSidebar}
-          aria-label="Abrir menú"
-        >
-          <i className="material-icons">menu</i>
-        </button>
+        {/* Botón hamburguesa — solo mobile con sesión */}
+        {user && (
+          <button
+            className="navbar-hamburger"
+            onClick={onToggleSidebar}
+            aria-label="Abrir menú"
+          >
+            <i className="material-icons">menu</i>
+          </button>
+        )}
+
+        {/* Sin sesión: logo + nombre de la plataforma en el lado izquierdo */}
+        {!user && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 20px' }}>
+            <img src={uscoLogo} alt="USCO" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#8B1A1A', fontFamily: 'Georgia, serif' }}>
+              Granja Experimental USCO
+            </span>
+          </div>
+        )}
 
         {/* Lado izquierdo vacío (reservado para search futuro) */}
         <div className="flex-grow-1" />
 
         {/* Acciones derecha */}
-        <ul className="navbar-nav border-left flex-row">
+        <ul className="navbar-nav border-left flex-row" style={{ alignItems: 'center' }}>
+
+          {/* Sin sesión: botón Iniciar sesión */}
+          {!user && (
+            <li className="nav-item d-flex align-items-center" style={{ padding: '0 16px' }}>
+              <button
+                onClick={() => navigate(ROUTES.LOGIN)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '7px 18px', borderRadius: 20, border: 'none',
+                  background: '#8B1A1A', color: '#fff',
+                  fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(139,26,26,0.25)',
+                }}
+              >
+                <i className="material-icons" style={{ fontSize: 16 }}>login</i>
+                Iniciar sesión
+              </button>
+            </li>
+          )}
 
           {/* Notificaciones — solo coordinador */}
           {user?.rol === 'coordinador' && (
@@ -220,53 +255,55 @@ export default function MainNavbar({ onToggleSidebar }: MainNavbarProps) {
             </li>
           )}
 
-          {/* Perfil */}
-          <li className="nav-item d-flex align-items-center" style={{ position: 'relative' }}>
-            <a
-              className="nav-link px-3 d-flex align-items-center"
-              href="#"
-              onClick={e => { e.preventDefault(); setProfileOpen(o => !o); }}
-              style={{ gap: 8, cursor: 'pointer' }}
-            >
-              <div style={{
-                width: 34, height: 34, borderRadius: '50%',
-                background: 'var(--usco-red)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0,
-              }}>
-                {user?.nombre?.charAt(0).toUpperCase()}
-              </div>
-              <span className="d-none d-md-inline" style={{ fontSize: 13, color: '#3D5170', fontWeight: 500 }}>
-                {user?.nombre}
-              </span>
-              <i className="material-icons" style={{ fontSize: 18, color: '#818EA3' }}>arrow_drop_down</i>
-            </a>
-
-            {profileOpen && (
-              <>
-                <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setProfileOpen(false)} />
-                <div className="card" style={{
-                  position: 'absolute', top: '100%', right: 0, zIndex: 100,
-                  minWidth: 210, padding: 0, border: '1px solid #e3e6ec',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+          {/* Perfil — solo cuando hay sesión */}
+          {user && (
+            <li className="nav-item d-flex align-items-center" style={{ position: 'relative' }}>
+              <a
+                className="nav-link px-3 d-flex align-items-center"
+                href="#"
+                onClick={e => { e.preventDefault(); setProfileOpen(o => !o); }}
+                style={{ gap: 8, cursor: 'pointer' }}
+              >
+                <div style={{
+                  width: 34, height: 34, borderRadius: '50%',
+                  background: 'var(--usco-red)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0,
                 }}>
-                  <div style={{ padding: '12px 16px', borderBottom: '1px solid #e3e6ec' }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: '#3D5170' }}>{user?.nombre}</div>
-                    <div style={{ fontSize: 11, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{user?.rol}</div>
-                    <div style={{ fontSize: 11, color: '#818EA3', marginTop: 2 }}>{user?.email}</div>
-                  </div>
-                  <button
-                    onClick={() => { setProfileOpen(false); logout(); }}
-                    className="btn btn-light w-100"
-                    style={{ borderRadius: 0, textAlign: 'left', padding: '10px 16px', fontSize: 13, color: '#E07A5F' }}
-                  >
-                    <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 6 }}>exit_to_app</i>
-                    Cerrar sesión
-                  </button>
+                  {user.nombre.charAt(0).toUpperCase()}
                 </div>
-              </>
-            )}
-          </li>
+                <span className="d-none d-md-inline" style={{ fontSize: 13, color: '#3D5170', fontWeight: 500 }}>
+                  {user.nombre}
+                </span>
+                <i className="material-icons" style={{ fontSize: 18, color: '#818EA3' }}>arrow_drop_down</i>
+              </a>
+
+              {profileOpen && (
+                <>
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setProfileOpen(false)} />
+                  <div className="card" style={{
+                    position: 'absolute', top: '100%', right: 0, zIndex: 100,
+                    minWidth: 210, padding: 0, border: '1px solid #e3e6ec',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                  }}>
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid #e3e6ec' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: '#3D5170' }}>{user.nombre}</div>
+                      <div style={{ fontSize: 11, color: '#818EA3', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{user.rol}</div>
+                      <div style={{ fontSize: 11, color: '#818EA3', marginTop: 2 }}>{user.email}</div>
+                    </div>
+                    <button
+                      onClick={() => { setProfileOpen(false); logout(); }}
+                      className="btn btn-light w-100"
+                      style={{ borderRadius: 0, textAlign: 'left', padding: '10px 16px', fontSize: 13, color: '#E07A5F' }}
+                    >
+                      <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 6 }}>exit_to_app</i>
+                      Cerrar sesión
+                    </button>
+                  </div>
+                </>
+              )}
+            </li>
+          )}
         </ul>
       </nav>
     </div>

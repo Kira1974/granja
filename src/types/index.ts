@@ -1,6 +1,6 @@
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
-export type Rol = 'coordinador' | 'mayordomo' | 'operario' | 'estudiante';
+export type Rol = 'coordinador' | 'mayordomo' | 'operario' | 'estudiante' | 'particular';
 
 export interface Usuario {
   id: number;

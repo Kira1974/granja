@@ -9,7 +9,8 @@
       "Read(//home/johanmosquera/**)",
       "Bash(cd \"/home/johanmosquera/Descargas/Usco/Proyecto Final/Frontend\" && npx tsc --noEmit 2>&1 | head -40)",
       "Bash(cd \"/home/johanmosquera/Descargas/Usco/Proyecto Final/Frontend\" && npx tsc --noEmit 2>&1 | grep \"Granja\\\\|granja\")",
-      "Bash(cd \"/home/johanmosquera/Descargas/Usco/Proyecto Final/Frontend\" && npx tsc --noEmit 2>&1 | grep -v \"Login.tsx\")"
+      "Bash(cd \"/home/johanmosquera/Descargas/Usco/Proyecto Final/Frontend\" && npx tsc --noEmit 2>&1 | grep -v \"Login.tsx\")",
+      "Bash(find \"/home/johanmosquera/Descargas/Usco/Proyecto Final/Frontend\" -type f -name \"*login*\" -o -name \"*Login*\" 2>/dev/null | head -20)"
     ]
   }
 }
